@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>My Own Score Record </title>
+<title>My Own Score Record</title>
 <style>
-body { font-size: 18px; }
-table { width: 90%; border-collapse: collapse; font-size: 16px; }
-th, td { border: 1px solid black; padding: 12px; }
-th { text-align: left; }
-input[type="text"] { font-size: 16px; padding: 8px; width: 100%; box-sizing: border-box; }
-button { font-size: 16px; padding: 8px 12px; }
-input[type="file"] { display: none; } /* Hide file input by default */
-img { max-width: 100px; max-height: 100px; } /* Limit image size */
+  body { font-size: 18px; }
+  table { width: 90%; border-collapse: collapse; font-size: 16px; }
+  th, td { border: 1px solid black; padding: 12px; }
+  th { text-align: left; }
+  input[type="text"] { font-size: 16px; padding: 8px; width: 100%; box-sizing: border-box; }
+  button { font-size: 16px; padding: 8px 12px; margin-top: 5px; }
+  input[type="file"] { display: none; }
+  img { max-width: 100px; max-height: 100px; }
 </style>
 </head>
 <body>
 
-<input type="text" id="searchInput" placeholder="Search..." onkeyup="searchTable()">
+<input type="text" id="searchInput" placeholder="Search..." onkeyup="AppInventor.setWebViewString('search:'+this.value)">
 
 <table>
   <thead>
@@ -29,140 +29,11 @@ img { max-width: 100px; max-height: 100px; } /* Limit image size */
   <tbody id="tableBody"></tbody>
 </table>
 
-<input type="text" id="newCol1" placeholder="Column 1">
-<input type="text" id="newCol2" placeholder="Column 2">
+<input type="text" id="newCol1" placeholder="Assessment Name">
+<input type="text" id="newCol2" placeholder="Score">
 <input type="file" id="imagePicker" accept="image/*">
-<button onclick="showImagePicker()">Choose Image</button>
-<button onclick="addRow()">Add Row</button>
-
-<script>
-  let data = JSON.parse(localStorage.getItem('tableData')) || [];
-
-  function updateLocalStorage() {
-    localStorage.setItem('tableData', JSON.stringify(data));
-  }
-
-  function updateData(rowIndex, colIndex, value) {
-    data[rowIndex][colIndex] = value;
-    updateLocalStorage();
-    renderTable();
-  }
-
-  function deleteRow(rowIndex) {
-    data.splice(rowIndex, 1);
-    updateLocalStorage();
-    renderTable();
-  }
-
-  function addRow() {
-    const file = document.getElementById('imagePicker').files[0];
-    let imageUrl = '';
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => { imageUrl = e.target.result; };
-      reader.readAsDataURL(file);
-    }
-
-    const newRow = [
-      document.getElementById('newCol1').value,
-      document.getElementById('newCol2').value,
-      imageUrl,
-    ];
-    data.push(newRow);
-    document.getElementById('newCol1').value = '';
-    document.getElementById('newCol2').value = '';
-    document.getElementById('imagePicker').value = ''; // Clear file input
-    updateLocalStorage();
-    renderTable();
-  }
-
-  function renderTable() {
-    const tbody = document.getElementById('tableBody');
-    tbody.innerHTML = '';
-
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filteredData = data.filter(row => {
-      return row.some(cell => cell && cell.toLowerCase().includes(searchTerm));
-    });
-
-    filteredData.forEach((row, rowIndex) => {
-      const newRow = tbody.insertRow();
-      row.forEach((cell, colIndex) => {
-        const cellElement = newRow.insertCell();
-        if (colIndex === 2) { // Image column
-          const img = document.createElement('img');
-          img.src = cell;
-          img.alt = 'Uploaded Image';
-          cellElement.appendChild(img);
-          const chooseImageButton = document.createElement('button');
-          chooseImageButton.textContent = 'Choose Image';
-          chooseImageButton.onclick = () => {
-            document.getElementById('imagePicker').click();
-            document.getElementById('imagePicker').onchange = () => {
-              const file = document.getElementById('imagePicker').files[0];
-              const reader = new FileReader();
-              reader.onload = (e) => {updateData(rowIndex, colIndex, e.target.result);};
-              reader.readAsDataURL(file);
-            };
-          };
-          cellElement.appendChild(chooseImageButton);
-        } else {
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.value = cell;
-          input.addEventListener('change', () => updateData(rowIndex, colIndex, input.value));
-          cellElement.appendChild(input);
-        }
-      });
-
-      const actionsCell = newRow.insertCell();
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'Delete';
-      deleteButton.onclick = () => deleteRow(rowIndex);
-      actionsCell.appendChild(deleteButton);
-    });
-  }
-
-  function searchTable() {
-    renderTable();
-  }
-
-  function showImagePicker() {
-    document.getElementById('imagePicker').click();
-  }
-
-
-  renderTable();
-
-//Modified functions to communicate with App Inventor
-
-function addRowApp Inventor() {
-
-addRow();
-
-AppInventor.call('RowAdded'); // Notify App Inventor
-
-}
-
-function choose ImageApp Inventor() {
-
-showImagePicker(); // Your existing function
-
-AppInventor.call('ImageChosen'); // Notify App Inventor
-
-}
-
-document.getElementById('addRowButton').addEventListener('click', addRowApp Inventor);
-
-document.getElementById('choose ImageButton').addEventListener('clic
-
-k', choose ImageApp Inventor);
-
-//... (rest of your JavaScript code) ...
-
-
-
-</script>
+<button onclick="AppInventor.setWebViewString('chooseImage')">Choose Image</button>
+<button onclick="AppInventor.setWebViewString('addRow:'+document.getElementById('newCol1').value+','+document.getElementById('newCol2').value)">Add Row</button>
 
 </body>
 </html>
