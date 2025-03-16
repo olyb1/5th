@@ -34,10 +34,12 @@ img { max-width: 100px; max-height: 100px; display: block; margin-top: 5px; }
 <button onclick="addRow()">Add Row</button>
 
 <script>
-  let data = JSON.parse(localStorage.getItem('tableData')) || [];
+  // Create a unique localStorage key based on the URL
+  const storageKey = 'tableData_' + window.location.pathname;
+  let data = JSON.parse(localStorage.getItem(storageKey)) || [];
 
   function updateLocalStorage() {
-    localStorage.setItem('tableData', JSON.stringify(data));
+    localStorage.setItem(storageKey, JSON.stringify(data));
   }
 
   function updateData(rowIndex, colIndex, value) {
